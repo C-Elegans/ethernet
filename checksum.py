@@ -45,7 +45,8 @@ with open("frame.hex", "w") as f:
 
     frame.extend([0x04, 0x00, 0x04, 0x00, 0x00, 0x1a, 0x00, 0x00])
 
-    frame.extend([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17])
+    string = "hello world! 1234\n"
+    frame.extend([ord(x) for x in list(string)])
 
     crc = crc32(frame)
     print [hex(x) for x in crc]

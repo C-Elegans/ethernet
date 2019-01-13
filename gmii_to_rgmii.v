@@ -63,7 +63,7 @@ module gmii_to_rgmii(/*AUTOARG*/
     
     
 
-    reg [10:0] counter;
+    reg [14:0] counter;
     reg [7:0] frame [0:127];
     initial $readmemh("frame.hex", frame);
     always @(posedge clk) begin
@@ -78,7 +78,7 @@ module gmii_to_rgmii(/*AUTOARG*/
 	else begin
 	    counter <= counter + 1;
 	    tx_en <= counter > 0 && counter <= 72;
-	    tx_data <= frame[counter[6:0]];
+	    tx_data <= tx_en ? frame[counter[6:0]] : 0;
 
 	end
     end
