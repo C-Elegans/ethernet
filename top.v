@@ -24,14 +24,11 @@ module top(/*AUTOARG*/
     wire   tx_ctrl;
     wire [3:0] txd;
 
-    wire       pll_lock;
+    wire       pll_lock = 1;
     assign rgmii_tx_clk = tx_clk;
-    assign rgmii_tx_ctrl = tx_ctrl;
     assign rgmii_txd = txd;
 
     assign sec_tx_clk = tx_clk;
-    assign sec_tx_ctrl = tx_ctrl;
-    assign sec_tx_dat = txd[0];
     /*AUTOWIRE*/
     // Beginning of automatic wires (for undeclared instantiated-module outputs)
     wire		mac_rst;		// From reset of reset.v
@@ -48,7 +45,9 @@ module top(/*AUTOARG*/
     gmii_to_rgmii eth(
 		      // Outputs
 		      .rgmii_tx_clk	(tx_clk),
-		      .rgmii_tx_ctrl	(tx_ctrl),
+		      .rgmii_tx_ctrl	(rgmii_tx_ctrl),
+				 .sec_ctrl (sec_tx_ctrl),
+				 .sec_q (sec_tx_dat),
 		      .rgmii_txd	(txd[3:0]),
 		      // Inputs
 		      .rgmii_rx_clk	(rgmii_rx_clk),
@@ -59,7 +58,6 @@ module top(/*AUTOARG*/
     pll pll(
 	    // Outputs
 	    .clko			(clk),
-	    .locked                     (pll_lock),
 	    // Inputs
 	    .clki			(clk_100));
 

@@ -1,6 +1,6 @@
 module gmii_to_rgmii(/*AUTOARG*/
     // Outputs
-    rgmii_tx_clk, rgmii_tx_ctrl, rgmii_txd,
+    rgmii_tx_clk, rgmii_tx_ctrl, sec_ctrl, sec_q, rgmii_txd,
     // Inputs
     rgmii_rx_clk, rgmii_rx_ctrl, rgmii_rxd, clk, rst
     );
@@ -10,6 +10,8 @@ module gmii_to_rgmii(/*AUTOARG*/
 
     output reg	rgmii_tx_clk;
     output reg	rgmii_tx_ctrl;
+    output reg	sec_ctrl;
+    output reg	sec_q;
     output reg [3:0] rgmii_txd;
 
     input 	 clk;
@@ -28,37 +30,38 @@ module gmii_to_rgmii(/*AUTOARG*/
 
     always @(*)
       rgmii_tx_clk = clk;
-    always @(posedge clk) begin
-	if(rst == 1) begin
-	    en <= 0;
-	    ctr <= 0;
-	    /*AUTORESET*/
-	end
-	else begin
-	    ctr <= ctr + 1;
-	    en <= 0;
-	    if(ctr == 0) begin
-		en <= 1;
-	    end
-	    else if(ctr == 1) begin
-	      en <= 0;
-	    end
-	    
-	    
 
+    genvar 	 i;
+    generate
+	for(i=0; i<4; i++) begin : txd 
+	  ODDRX1F txd(
+		      .D0(tx_data[i]),
+		      .D1(tx_data[i+4]),
+		      .RST(rst),
+		      .SCLK(clk),
+		      .Q(rgmii_txd[i]));
 	end
-    end
-
-    always @(posedge clk) begin
-	if(ctr == 0) begin
-	    rgmii_txd <= tx_en ? tx_data[3:0] : 0;
-	    txd_next <= tx_en ? tx_data[7:4] : 0;
-	end
-	if(ctr == 1)begin
-	    rgmii_txd <= txd_next;
-	end
-	rgmii_tx_ctrl <= tx_en;
-    end
+    endgenerate
+    ODDRX1F ctrl(
+		 .D0(tx_en),
+		 .D1(tx_en),
+		 .RST(rst),
+		 .SCLK(clk),
+		 .Q(rgmii_tx_ctrl));
+    ODDRX1F secctrl(
+		 .D0(tx_en),
+		 .D1(tx_en),
+		 .RST(rst),
+		 .SCLK(clk),
+		 .Q(sec_ctrl));
+    ODDRX1F secq(
+		.D0(tx_data[0]),
+		.D1(tx_data[4]),
+		.RST(rst),
+		.SCLK(clk),
+		.Q(sec_q));
+    
+    
 
     reg [10:0] counter;
     reg [7:0] frame [0:127];
@@ -67,14 +70,14 @@ module gmii_to_rgmii(/*AUTOARG*/
 	if(rst == 1) begin
 	    /*AUTORESET*/
 	    // Beginning of autoreset for uninitialized flops
-	    counter <= 7'h0;
+	    counter <= 11'h0;
 	    tx_data <= 8'h0;
 	    tx_en <= 1'h0;
 	    // End of automatics
 	end
-	else if(en == 1) begin
+	else begin
 	    counter <= counter + 1;
-	    tx_en <= counter > 0 && counter <= 71;
+	    tx_en <= counter > 0 && counter <= 72;
 	    tx_data <= frame[counter[6:0]];
 
 	end
