@@ -1,0 +1,9 @@
+*~
+obj_dir/*
+.#*
+\#*
+a.out
+*.bit
+*.json
+*.config
+*.svf

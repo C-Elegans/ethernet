@@ -1,0 +1,31 @@
+
+
+LOCATE COMP "clk_100" SITE "P3";
+IOBUF PORT "clk_100" IO_TYPE=LVDS;
+
+LOCATE COMP "rgmii_txd[0]" SITE "N19";
+LOCATE COMP "rgmii_txd[1]" SITE "N20";
+LOCATE COMP "rgmii_txd[2]" SITE "P18";
+LOCATE COMP "rgmii_txd[3]" SITE "P20";
+LOCATE COMP "rgmii_tx_clk" SITE "P19";
+LOCATE COMP "rgmii_tx_ctrl" SITE "R20";
+IOBUF PORT "rgmii_txd[0]" IO_TYPE=LVCMOS25;
+IOBUF PORT "rgmii_txd[1]" IO_TYPE=LVCMOS25;
+IOBUF PORT "rgmii_txd[2]" IO_TYPE=LVCMOS25;
+IOBUF PORT "rgmii_txd[3]" IO_TYPE=LVCMOS25;
+IOBUF PORT "rgmii_tx_clk" IO_TYPE=LVCMOS25;
+IOBUF PORT "rgmii_tx_ctrl" IO_TYPE=LVCMOS25;
+LOCATE COMP "rgmii_rstn" SITE "U17";
+IOBUF PORT "rgmii_rstn" IO_TYPE=LVCMOS25;
+
+LOCATE COMP "sec_tx_clk" SITE "A12";
+LOCATE COMP "sec_tx_dat" SITE "A13";
+LOCATE COMP "sec_tx_ctrl" SITE "D13";
+IOBUF PORT "sec_tx_clk" IO_TYPE=LVCMOS33;
+IOBUF PORT "sec_tx_dat" IO_TYPE=LVCMOS33;
+IOBUF PORT "sec_tx_ctrl" IO_TYPE=LVCMOS33;
+LOCATE COMP "rstn" SITE "T1";
+IOBUF PORT "rstn" IO_TYPE=LVCMOS33;
+
+
+
