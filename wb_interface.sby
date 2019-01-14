@@ -1,6 +1,10 @@
+[tasks]
+task1 prove
+task2 cover
 [options]
-mode prove
-depth 10
+prove: mode prove
+prove: depth 10
+cover: mode cover
 
 [engines]
 smtbmc

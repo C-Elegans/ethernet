@@ -12,9 +12,9 @@ module wb_interface(/*AUTOARG*/
     input      i_wb_addr;
     input [31:0] i_wb_data;
 
-    output 	 o_wb_ack;
+    output reg	 o_wb_ack;
     output 	 o_wb_stall;
-    output [31:0] o_wb_data;
+    output reg [31:0] o_wb_data;
 
     input 	  i_fifo_full;
     output reg	  o_fifo_wr;
@@ -22,8 +22,7 @@ module wb_interface(/*AUTOARG*/
 
     reg [8:0] 	      word_count;
 
-    always @(*)
-      o_wb_stall = i_fifo_full;
+      assign o_wb_stall = i_fifo_full;
     
 
     always @(posedge clk) begin
@@ -32,6 +31,9 @@ module wb_interface(/*AUTOARG*/
 	    // Beginning of autoreset for uninitialized flops
 	    o_fifo_data <= 32'h0;
 	    o_fifo_wr <= 1'h0;
+	    o_wb_ack <= 1'h0;
+	    o_wb_data <= 32'h0;
+	    word_count <= 9'h0;
 	    // End of automatics
 	end
 	else begin 
@@ -66,16 +68,26 @@ module wb_interface(/*AUTOARG*/
     initial assume(i_wb_stb == 0);
     initial assume(rst == 1);
     always @(posedge clk) begin
-	f_past_valid = 1'b1;
-	assume(rst == 0);
+	if(rst == 0)
+	  f_past_valid = 1'b1;
+	if(f_past_valid)
+	  assume(rst == 0);
     end
     
-	  
+    always @(posedge clk) begin
+	cover(i_fifo_full && i_wb_stb);
+	cover(i_wb_stb && i_wb_we && !o_wb_stall);
+	cover(i_wb_stb && !i_wb_we && !o_wb_stall && word_count != 0);
+	cover($past(word_count) != word_count && f_past_valid);
+	cover(o_wb_data == $past(word_count) && f_past_valid && ($past(o_wb_data) != $past(word_count)));
+    end
+    
+    
 
     // Prove that it will never overflow the fifo
     always @(posedge clk) begin
-	 if($past(i_fifo_full) && f_past_valid)
-	   assert(!o_fifo_wr);
+	if($past(i_fifo_full) && f_past_valid)
+	  assert(!o_fifo_wr);
     end
     // Prove that it always acks as long as it wasn't previously stalling
     always @(posedge clk) begin
