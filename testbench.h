@@ -36,24 +36,25 @@ public:
   virtual void tick(void){
     tickcount++;
 
-    CLK = 0;
-    core->eval();
-    if(trace) trace->dump(10*tickcount-3);
+    /* CLK = 0; */
+    /* core->eval(); */
+    /* if(trace) trace->dump(10*tickcount-3); */
     
-    CLK = 1;
-    if(tickhandler)tickhandler();
-    if(trace) trace->dump(10*tickcount-2);
-    core->eval();
-    if(trace) trace->dump(10*tickcount);
+    /* CLK = 1; */
 
+    if(trace) trace->dump(10*tickcount);
     CLK = 0;
     if(tickhandler)tickhandler();
-    if(trace) trace->dump(10*tickcount+2);
+    //if(trace) trace->dump(10*tickcount+2);
     core->eval();
     if(trace){
       trace->dump(10*tickcount+5);
       trace->flush();
     }
+    CLK = 1;
+    if(tickhandler)tickhandler();
+    //if(trace) trace->dump(10*tickcount-2);
+    core->eval();
   }
   void register_tick_handler(std::function<void(void)> handler){
     tickhandler = handler;
