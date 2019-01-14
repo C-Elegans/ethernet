@@ -1,0 +1,13 @@
+[options]
+mode prove
+depth 10
+
+[engines]
+smtbmc
+
+[script]
+read -formal wb_interface.v
+prep -top wb_interface
+
+[files]
+wb_interface.v

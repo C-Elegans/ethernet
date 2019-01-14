@@ -38,7 +38,7 @@ module wb_interface(/*AUTOARG*/
 	    o_fifo_wr <= 1'b0;
 	    o_wb_ack <= 0;
 	    // write
-	    if(i_wb_stb && i_wb_we && !i_fifo_full) begin
+	    if(i_wb_stb && i_wb_we && !o_wb_stall) begin
 		case(i_wb_addr) 
 		  1'b0: begin
 		      o_fifo_data <= i_wb_data;
@@ -60,7 +60,29 @@ module wb_interface(/*AUTOARG*/
 	end // else: !if(rst)
     end // always @ (posedge clk)
     
+`ifdef FORMAL
+    reg f_past_valid;
+    initial f_past_valid = 1'b0;
+    initial assume(i_wb_stb == 0);
+    initial assume(rst == 1);
+    always @(posedge clk) begin
+	f_past_valid = 1'b1;
+	assume(rst == 0);
+    end
     
+	  
 
+    // Prove that it will never overflow the fifo
+    always @(posedge clk) begin
+	 if($past(i_fifo_full) && f_past_valid)
+	   assert(!o_fifo_wr);
+    end
+    // Prove that it always acks as long as it wasn't previously stalling
+    always @(posedge clk) begin
+	if($past(i_wb_stb) && f_past_valid && !$past(o_wb_stall))
+	  assert(o_wb_ack);
+    end
+    
+`endif
 endmodule // wb_interface
 

@@ -9,3 +9,4 @@ a.out
 *.svf
 
 *.vcd
+wb_interface
