@@ -53,7 +53,6 @@ with open("frame.hex", "w") as f:
     frame.extend(crc)
 
 
-    f.write("00\n")
     for i in range(0,7):
         f.write("55\n")
     f.write("D5\n")

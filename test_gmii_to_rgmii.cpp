@@ -13,16 +13,14 @@ void handler(void){
   static uint8_t data;
   static uint8_t en;
   static uint8_t past_clk = 0;
+  if(SIG(rgmii_tx_clk) == 1 && past_clk == 0){
+    data = SIG(rgmii_txd);
+    en = SIG(rgmii_tx_ctrl);
+  }
   if(SIG(rgmii_tx_clk) == 0 && past_clk == 1){
-    if(en){
-      data = data | SIG(rgmii_txd) << 4;
-      printf("data: 0x%02X\n", data);
-      en = 0;
-    }
-    else {
-      en = SIG(rgmii_tx_ctrl);
-      data = SIG(rgmii_txd);
-    }
+    data = data | (SIG(rgmii_txd) << 4);
+    if(SIG(rgmii_tx_ctrl))
+      printf("data: %02x\n", data);
   }
   past_clk = SIG(rgmii_tx_clk);
 }

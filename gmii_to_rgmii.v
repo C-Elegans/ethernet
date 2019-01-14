@@ -63,21 +63,21 @@ module gmii_to_rgmii(/*AUTOARG*/
     
     
 
-    reg [14:0] counter;
+    reg [7:0] counter;
     reg [7:0] frame [0:127];
     initial $readmemh("frame.hex", frame);
     always @(posedge clk) begin
 	if(rst == 1) begin
 	    /*AUTORESET*/
 	    // Beginning of autoreset for uninitialized flops
-	    counter <= 11'h0;
+	    counter <= 0;
 	    tx_data <= 8'h0;
 	    tx_en <= 1'h0;
 	    // End of automatics
 	end
 	else begin
 	    counter <= counter + 1;
-	    tx_en <= counter > 0 && counter <= 72;
+	    tx_en <= counter > 0 && counter <= 71;
 	    tx_data <= tx_en ? frame[counter[6:0]] : 0;
 
 	end
