@@ -1,5 +1,5 @@
 CFLAGS=-std=c++14 -Wall -Wno-empty-body -g
-VFILES:= gmii_to_rgmii.v wb_interface.v
+VFILES:= gmii_to_rgmii.v wb_interface.v crc32.v
 TESTS:= $(patsubst %.v, obj_dir/V%, $(VFILES))
 SBYS:= $(wildcard *.sby)
 FORMAL:= $(patsubst %.sby, %/PASS, $(SBYS))
