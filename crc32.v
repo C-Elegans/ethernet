@@ -13,7 +13,7 @@ module crc32(/*AUTOARG*/
     assign crc = state ^ 32'hffffffff;
     reg [31:0] 	  temp;
 
-    int 	  i;
+    reg [4:0] 	  i;
     always @(posedge clk)
       if(rst == 1'b1) begin
 	  state <= 32'hffffffff;
