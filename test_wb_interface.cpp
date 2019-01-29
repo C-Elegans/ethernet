@@ -57,7 +57,9 @@ int main(int argc, char** argv){
   wishbone_write(0, 0xcc);
   wishbone_write(0, 0xdd);
   wishbone_write(1, 0x40);
+  wishbone_write(2, 0x01);
   tb.cycles(2);
-  printf("%x\n", wishbone_read(0));
+  printf("%x\n", wishbone_read(1));
+  printf("%x\n", wishbone_read(2));
   tb.cycles(3);
 }
