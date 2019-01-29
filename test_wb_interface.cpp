@@ -61,5 +61,6 @@ int main(int argc, char** argv){
   tb.cycles(2);
   printf("%x\n", wishbone_read(1));
   printf("%x\n", wishbone_read(2));
-  tb.cycles(3);
+  wishbone_write(3, 0x00);
+  tb.cycles(10);
 }

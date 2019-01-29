@@ -46,9 +46,12 @@ module wb_interface(/*AUTOARG*/
    localparam // auto enum state
      S_IDLE=0,
      S_WRITING=1,
-     S_CRC=2;
+     S_CRC_0=2,
+     S_CRC_1=3,
+     S_CRC_2=4,
+     S_CRC_3=5;
 
-   reg [1:0] // auto enum state
+   reg [2:0] // auto enum state
 	     state;
 
    wire      wb_write = i_wb_stb && i_wb_we && !o_wb_stall;
@@ -93,33 +96,50 @@ module wb_interface(/*AUTOARG*/
 		 o_wb_data <= 8'b0;
 	       o_wb_ack <= 1;
 	    end
+	   case(state)
+	     S_IDLE: begin
+		crc32_rst_reg <= 1'b1;
+		state <= S_WRITING;
+	     end
+	     S_WRITING: begin
+		crc32_rst_reg <= 1'b0;
+		crc32_en <= 1'b0;
+		if(wb_write && i_wb_addr == 2'b0) begin
+		   crc32_data_in <= i_wb_data;
+		   crc32_en <= 1'b1;
+		end
+		if(wb_write && i_wb_addr == 2'b11) begin
+		   state <= S_CRC_0;
+		end
+	     end
+	     S_CRC_0: begin
+		o_fifo_wr <= 1'b1;
+		o_fifo_data <= crc32_out[7:0];
+		state <= S_CRC_1;
+	     end
+	     S_CRC_1: begin
+		o_fifo_wr <= 1'b1;
+		o_fifo_data <= crc32_out[15:8];
+		state <= S_CRC_2;
+	     end
+	     S_CRC_2: begin
+		o_fifo_wr <= 1'b1;
+		o_fifo_data <= crc32_out[23:16];
+		state <= S_CRC_3;
+	     end
+	     S_CRC_3: begin
+		o_fifo_wr <= 1'b1;
+		o_fifo_data <= crc32_out[31:24];
+		state <= S_IDLE;
+	     end
+	     
+	     
+	     
+	   endcase // case (state)
 	   
 	end // else: !if(rst)
     end // always @ (posedge clk)
 
-
-   always @(posedge clk) begin
-      if(rst == 1'b1) begin
-      end
-      else begin
-	 case(state)
-	   S_IDLE: begin
-	      crc32_rst_reg <= 1'b1;
-	      state <= S_WRITING;
-	   end
-	   S_WRITING: begin
-	      crc32_rst_reg <= 1'b0;
-	      crc32_en <= 1'b0;
-	      if(wb_write && i_wb_addr == 2'b0) begin
-		 crc32_data_in <= i_wb_data;
-		 crc32_en <= 1'b1;
-	      end
-	   end
-	   
-	 endcase // case (state)
-      end
-   end
-   
    
 `ifdef FORMAL
    reg f_past_valid;
