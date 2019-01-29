@@ -1,9 +1,11 @@
 module gmii_to_rgmii(/*AUTOARG*/
-    // Outputs
-    rgmii_tx_clk, rgmii_tx_ctrl, sec_ctrl, sec_q, rgmii_txd,
-    // Inputs
-    rgmii_rx_clk, rgmii_rx_ctrl, rgmii_rxd, clk, rst
-    );
+   // Outputs
+   rgmii_tx_clk, rgmii_tx_ctrl, sec_ctrl, sec_q, rgmii_txd,
+   gmii_rx_clk, gmii_rx_data, gmii_rx_en, gmii_rx_er,
+   // Inputs
+   rgmii_rx_clk, rgmii_rx_ctrl, rgmii_rxd, gmii_tx_clk, gmii_tx_data,
+   gmii_tx_en, gmii_tx_er
+   );
     input rgmii_rx_clk;
     input rgmii_rx_ctrl;
     input [3:0] rgmii_rxd;
@@ -14,19 +16,19 @@ module gmii_to_rgmii(/*AUTOARG*/
     output reg	sec_q;
     output reg [3:0] rgmii_txd;
 
-    input 	 clk;
-    input 	 rst;
+   input 	     gmii_tx_clk;
+   input [7:0] 	     gmii_tx_data;
+   input 	     gmii_tx_en;
+   input 	     gmii_tx_er;
 
-    reg 	 en;
+   output 	     gmii_rx_clk;
+   output [7:0]      gmii_rx_data;
+   output 	     gmii_rx_en;
+   output 	     gmii_rx_er;
 
-    reg [7:0] 	 tx_data ;
-    reg 	 tx_en ;
-    reg 	 tx_er = 0;
 
-    reg [3:0] 	 txd_next;
-    reg 	 tx_ctrl_next;
-
-    reg [0:0] 	 ctr;
+   output 	     sec_ctrl, sec_q;
+	  
 
     always @(*)
       rgmii_tx_clk = clk;
@@ -35,57 +37,32 @@ module gmii_to_rgmii(/*AUTOARG*/
     generate
 	for(i=0; i<4; i++) begin : txd 
 	  ODDRX1F txd(
-		      .D0(tx_data[i]),
-		      .D1(tx_data[i+4]),
+		      .D0(gmii_tx_data[i]),
+		      .D1(gmii_tx_data[i+4]),
 		      .RST(rst),
 		      .SCLK(clk),
 		      .Q(rgmii_txd[i]));
 	end
     endgenerate
     ODDRX1F ctrl(
-		 .D0(tx_en),
-		 .D1(tx_en),
+		 .D0(gmii_tx_en),
+		 .D1(gmii_tx_en ^ gmii_tx_er),
 		 .RST(rst),
 		 .SCLK(clk),
 		 .Q(rgmii_tx_ctrl));
     ODDRX1F secctrl(
-		 .D0(tx_en),
-		 .D1(tx_en),
+		 .D0(gmii_tx_en ^ gmii_tx_er),
+		 .D1(gmii_tx_en ^ gmii_tx_er),
 		 .RST(rst),
 		 .SCLK(clk),
 		 .Q(sec_ctrl));
     ODDRX1F secq(
-		.D0(tx_data[0]),
-		.D1(tx_data[4]),
+		.D0(rgmii_tx_data[0]),
+		.D1(rgmii_tx_data[4]),
 		.RST(rst),
 		.SCLK(clk),
 		.Q(sec_q));
     
     
 
-    reg [7:0] counter;
-    reg [7:0] frame [0:127];
-    initial $readmemh("frame.hex", frame);
-    always @(posedge clk) begin
-	if(rst == 1) begin
-	    /*AUTORESET*/
-	    // Beginning of autoreset for uninitialized flops
-	    counter <= 0;
-	    tx_data <= 8'h0;
-	    tx_en <= 1'h0;
-	    // End of automatics
-	end
-	else begin
-	    counter <= counter + 1;
-	    tx_en <= counter > 0 && counter <= 71;
-	    tx_data <= tx_en ? frame[counter[6:0]] : 0;
-
-	end
-    end
-    
-    
-    
-
-
-endmodule // gmii_to_rgmii
-
+endmodule
