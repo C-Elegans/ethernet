@@ -62,5 +62,10 @@ int main(int argc, char** argv){
   printf("%x\n", wishbone_read(1));
   printf("%x\n", wishbone_read(2));
   wishbone_write(3, 0x00);
-  tb.cycles(10);
+  while(SIG(word_count_ready) != 1)
+    tb.tick();
+  SIG(word_count_ack) = 1;
+  tb.cycles(2);
+  SIG(word_count_ack) = 0;
+  tb.cycles(2);
 }

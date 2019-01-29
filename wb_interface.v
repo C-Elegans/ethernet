@@ -1,9 +1,10 @@
 module wb_interface(/*AUTOARG*/
    // Outputs
    o_wb_ack, o_wb_stall, o_wb_data, o_fifo_wr, o_fifo_data,
+   o_word_count, word_count_ready,
    // Inputs
    clk, rst, i_wb_cyc, i_wb_stb, i_wb_we, i_wb_addr, i_wb_data,
-   i_fifo_full
+   i_fifo_full, word_count_ack
    );
     input clk, rst;
     input wire i_wb_cyc;
@@ -19,6 +20,12 @@ module wb_interface(/*AUTOARG*/
     input 	  i_fifo_full;
     output reg	  o_fifo_wr;
     output reg [7:0] o_fifo_data;
+
+   output reg [10:0] o_word_count;
+   output reg 	     word_count_ready;
+   input 	     word_count_ack;
+
+   reg [2:0] 	     wc_ack_sync;
 
     reg [10:0] 	      word_count;
 
@@ -49,7 +56,9 @@ module wb_interface(/*AUTOARG*/
      S_CRC_0=2,
      S_CRC_1=3,
      S_CRC_2=4,
-     S_CRC_3=5;
+     S_CRC_3=5,
+     S_WC_SEND=6,
+     S_WC_ACK=7;
 
    reg [2:0] // auto enum state
 	     state;
@@ -61,16 +70,24 @@ module wb_interface(/*AUTOARG*/
 	if(rst) begin
 	    /*AUTORESET*/
 	    // Beginning of autoreset for uninitialized flops
+	    crc32_data_in <= 8'h0;
+	    crc32_en <= 1'h0;
+	    crc32_rst_reg <= 1'h0;
 	    o_fifo_data <= 8'h0;
 	    o_fifo_wr <= 1'h0;
 	    o_wb_ack <= 1'h0;
 	    o_wb_data <= 8'h0;
+	    o_word_count <= 11'h0;
+	    state <= 3'h0;
+	    wc_ack_sync <= 3'h0;
 	    word_count <= 11'h0;
+	    word_count_ready <= 1'h0;
 	    // End of automatics
 	end
 	else begin 
 	    o_fifo_wr <= 1'b0;
 	    o_wb_ack <= 0;
+	   wc_ack_sync <= {wc_ack_sync[1:0], word_count_ack};
 	    // write
 	    if(wb_write) begin
 		if(i_wb_addr == 2'b0) begin
@@ -130,8 +147,17 @@ module wb_interface(/*AUTOARG*/
 	     S_CRC_3: begin
 		o_fifo_wr <= 1'b1;
 		o_fifo_data <= crc32_out[31:24];
-		state <= S_IDLE;
+		state <= S_WC_SEND;
 	     end
+	     S_WC_SEND: begin
+		o_word_count <= word_count;
+		word_count_ready <= 1'b1;
+	     end
+	     S_WC_ACK: 
+	       if(wc_ack_sync[2]) begin
+		  word_count_ready <= 1'b0;
+		  state <= S_IDLE;
+	       end
 	     
 	     
 	     
