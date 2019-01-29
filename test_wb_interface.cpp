@@ -10,7 +10,7 @@ Testbench<Vwb_interface> tb;
 
 unsigned char ddr_data_in;
 
-void wishbone_write(uint32_t addr, uint32_t data){
+void wishbone_write(uint32_t addr, uint8_t data){
   while(SIG(o_wb_stall) == 1) tb.tick();
   SIG(i_wb_cyc) = 1;
   SIG(i_wb_stb) = 1;
@@ -51,8 +51,12 @@ int main(int argc, char** argv){
   tb.opentrace("dump.vcd");
   tb.reset();
   tb.tick();
-  wishbone_write(0, 0xdeadbeef);
-  wishbone_write(1, 0xf00d1337);
+  SIG(rst) = 0;
+  wishbone_write(0, 0xaa);
+  wishbone_write(0, 0xbb);
+  wishbone_write(0, 0xcc);
+  wishbone_write(0, 0xdd);
+  wishbone_write(1, 0x40);
   tb.cycles(2);
   printf("%x\n", wishbone_read(0));
   tb.cycles(3);
