@@ -2,13 +2,13 @@ CFLAGS=-std=c++14 -Wall -Wno-empty-body -g
 VFILES:= gmii_to_rgmii.v wb_interface.v crc32.v
 TESTS:= $(patsubst %.v, obj_dir/V%, $(VFILES))
 SBYS:= $(wildcard *.sby)
-FORMAL:= $(patsubst %.sby, %/PASS, $(SBYS))
-LDFLAGS=$(shell pkg-config --libs libpng)
-VFLAGS=-Wall -trace --public -I../rtl
+FORMAL:=$(patsubst %.sby, %/PASS, $(SBYS))
+LDFLAGS=
+VFLAGS:=-Wall -trace --public -I../rtl
 all: $(TESTS) 
 
 obj_dir/V%.h: %.v 
-	verilator $(VFLAGS) -CFLAGS "$(CFLAGS)" -LDFLAGS "$(LDFLAGS)" --cc test_$*.cpp --exe $<
+	verilator $(VFLAGS) -CFLAGS "$(CFLAGS)" --cc test_$*.cpp --exe $<
 
 obj_dir/V%: test_%.cpp obj_dir/V%.h $(wildcard *.h)
 	$(MAKE) -C obj_dir -f V$*.mk V$*
