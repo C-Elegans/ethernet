@@ -48,9 +48,9 @@ with open("frame.hex", "w") as f:
     string = "hello world! 1234\n"
     frame.extend([ord(x) for x in list(string)])
 
-    crc = crc32(frame)
-    print [hex(x) for x in crc]
-    frame.extend(crc)
+    # crc = crc32(frame)
+    # print [hex(x) for x in crc]
+    # frame.extend(crc)
 
 
     for i in range(0,7):
@@ -61,3 +61,5 @@ with open("frame.hex", "w") as f:
     written = 9+len(frame)
     for i in range(written, 128):
         f.write("00\n")
+
+    print "Length: ", len(frame)+8
