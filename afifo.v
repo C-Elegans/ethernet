@@ -67,10 +67,10 @@ module afifo(i_wclk, i_wrst_n, i_wr, i_wdata, o_wfull,
 			AW = ASIZE;
 	input	wire			i_wclk, i_wrst_n, i_wr;
 	input	wire	[DW-1:0]	i_wdata;
-	output	wire			o_wfull;
+	output	reg			o_wfull;
 	input	wire			i_rclk, i_rrst_n, i_rd;
 	output	reg	[DW-1:0]	o_rdata;
-	output	wire			o_rempty;
+	output	reg			o_rempty;
 
 	wire	[AW-1:0]	waddr, raddr;
 	wire			wfull_next, rempty_next;
@@ -177,7 +177,7 @@ module afifo(i_wclk, i_wrst_n, i_wr, i_wdata, o_wfull,
 		{ rbin, rgray } <= { rbinnext, rgraynext };
 
 	// Memory read address gray code and pointer calculation
-	assign	raddr = rbinnext[AW-1:0];
+	assign	raddr = rbin[AW-1:0];
 
 	// Determine if we'll be empty on the next clock
 	assign	rempty_next = (rgraynext == rq2_wgray);

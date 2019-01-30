@@ -9,7 +9,7 @@ module gmii_interface(/*AUTOARG*/
 
    input [7:0] fifo_data;
    input       fifo_empty;
-   output      fifo_rd;
+   output reg fifo_rd;
 
    input [10:0] word_count;
    input 	word_count_ready;

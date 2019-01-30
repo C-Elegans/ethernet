@@ -1,3 +1,4 @@
+`default_nettype wire
 module crc32(/*AUTOARG*/
     // Outputs
     crc,
@@ -7,7 +8,7 @@ module crc32(/*AUTOARG*/
     input clk, rst;
     input en;
     input [7:0] data_in;
-    output [31:0] crc;
+    output wire [31:0] crc;
 
     reg [31:0] 	  state;
     assign crc = state ^ 32'hffffffff;
@@ -26,7 +27,7 @@ module crc32(/*AUTOARG*/
 
     always @(*) begin
 	temp = state ^ {24'b0, data_in};
-	for (i=0;i<8;i++)
+	for (i=0;i<8;i=i+1)
 	  if((temp & 32'b1) != 0)
 	    temp = (temp >> 1) ^ 32'hedb88320;
 	  else

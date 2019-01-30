@@ -1,3 +1,4 @@
+`default_nettype wire
 module gmii_to_rgmii(/*AUTOARG*/
    // Outputs
    rgmii_tx_clk, rgmii_tx_ctrl, sec_ctrl, sec_q, rgmii_txd,
@@ -11,10 +12,10 @@ module gmii_to_rgmii(/*AUTOARG*/
     input [3:0] rgmii_rxd;
 
     output reg	rgmii_tx_clk;
-    output reg	rgmii_tx_ctrl;
-    output reg	sec_ctrl;
-    output reg	sec_q;
-    output reg [3:0] rgmii_txd;
+    output wire	rgmii_tx_ctrl;
+    output wire	sec_ctrl;
+    output wire	sec_q;
+    output wire [3:0] rgmii_txd;
 
    input 	     gmii_tx_clk;
    input [7:0] 	     gmii_tx_data;
@@ -35,7 +36,7 @@ module gmii_to_rgmii(/*AUTOARG*/
 
     genvar 	 i;
     generate
-	for(i=0; i<4; i++) begin : txd 
+	for(i=0; i<4; i=i+1) begin : txd 
 	  ODDRX1F txd(
 		      .D0(gmii_tx_data[i]),
 		      .D1(gmii_tx_data[i+4]),
