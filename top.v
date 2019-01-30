@@ -34,6 +34,7 @@ module top(/*AUTOARG*/
     wire [1:0]		o_wb_addr;		// From wb_master of master.v
     wire		o_wb_cyc;		// From wb_master of master.v
     wire [7:0]		o_wb_data;		// From mac of mac.v, ...
+    wire [7:0]		i_wb_data;		// From mac of mac.v, ...
     wire		o_wb_stall;		// From mac of mac.v
     wire		o_wb_stb;		// From wb_master of master.v
     wire		o_wb_we;		// From wb_master of master.v
@@ -58,7 +59,7 @@ module top(/*AUTOARG*/
 	   .rgmii_tx_ctrl		(rgmii_tx_ctrl),
 	   .o_wb_ack			(o_wb_ack),
 	   .o_wb_stall			(o_wb_stall),
-	   .o_wb_data			(o_wb_data[7:0]),
+	   .o_wb_data			(i_wb_data[7:0]),
 	   // Inputs
 	   .rgmii_rx_clk		(rgmii_rx_clk),
 	   .rgmii_rxd			(rgmii_rxd[3:0]),
@@ -82,7 +83,7 @@ module top(/*AUTOARG*/
 		    .rst		(mac_rst),
 		    .i_wb_ack		(o_wb_ack),
 		    .i_wb_stall		(o_wb_stall),
-		    .i_wb_data		(o_wb_data[7:0]));
+		    .i_wb_data		(i_wb_data[7:0]));
 `ifdef VERILATOR
    assign 		clk = clk_100;
    `else

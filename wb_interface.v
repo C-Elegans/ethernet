@@ -152,6 +152,7 @@ module wb_interface(/*AUTOARG*/
 	     S_WC_SEND: begin
 		o_word_count <= word_count;
 		word_count_ready <= 1'b1;
+		state <= S_WC_ACK;
 	     end
 	     S_WC_ACK: 
 	       if(wc_ack_sync[2]) begin

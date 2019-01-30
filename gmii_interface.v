@@ -53,6 +53,7 @@ module gmii_interface(/*AUTOARG*/
 	 case(state)
 	   S_IDLE: begin
 	      gmii_tx_en <= 1'b0;
+	      gmii_tx_data <= 8'b0;
 	      if(wc_ready_sync[2]) begin
 		 word_count_ack <= 1;
 		 word_count_reg <= word_count;
@@ -76,6 +77,7 @@ module gmii_interface(/*AUTOARG*/
 	      gmii_tx_data <= fifo_data;
 	      if(word_count_reg == 0) begin
 		 state <= S_IDLE;
+		 fifo_rd <= 1'b0;
 	      end
 	   end
 	   

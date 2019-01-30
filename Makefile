@@ -14,10 +14,10 @@ obj_dir/V%: test_%.cpp obj_dir/V%.h $(wildcard *.h)
 	$(MAKE) -C obj_dir -f V$*.mk V$*
 	./$@
 
-top.json: top.v gmii_to_rgmii.v pll.v reset.v
+top.json: top.v gmii_to_rgmii.v pll.v reset.v mac.v wb_interface.v afifo.v crc32.v gmii_interface.v master.v
 	yosys -p "synth_ecp5 -json $@ -top top" $^
 %_out.config: %.json versa.lpf
-	nextpnr-ecp5 --json $< --basecfg /usr/local/share/trellis/misc/basecfgs/empty_lfe5um-45f.config --textcfg $@ --um-45k --package CABGA381 --lpf versa.lpf	
+	nextpnr-ecp5 --json $< --basecfg /usr/local/share/trellis/misc/basecfgs/empty_lfe5um-45f.config --textcfg $@ --um-45k --package CABGA381 --lpf versa.lpf --freq 125
 
 %.bit: %_out.config
 	ecppack --svf-rowsize 100000 --svf top.svf $< $@

@@ -69,7 +69,7 @@ module afifo(i_wclk, i_wrst_n, i_wr, i_wdata, o_wfull,
 	input	wire	[DW-1:0]	i_wdata;
 	output	wire			o_wfull;
 	input	wire			i_rclk, i_rrst_n, i_rd;
-	output	wire	[DW-1:0]	o_rdata;
+	output	reg	[DW-1:0]	o_rdata;
 	output	wire			o_rempty;
 
 	wire	[AW-1:0]	waddr, raddr;
@@ -177,7 +177,7 @@ module afifo(i_wclk, i_wrst_n, i_wr, i_wdata, o_wfull,
 		{ rbin, rgray } <= { rbinnext, rgraynext };
 
 	// Memory read address gray code and pointer calculation
-	assign	raddr = rbin[AW-1:0];
+	assign	raddr = rbinnext[AW-1:0];
 
 	// Determine if we'll be empty on the next clock
 	assign	rempty_next = (rgraynext == rq2_wgray);
@@ -193,7 +193,10 @@ module afifo(i_wclk, i_wrst_n, i_wr, i_wdata, o_wfull,
 	// Read from the memory--a clockless read here, clocked by the next
 	// read FLOP in the next processing stage (somewhere else)
 	//
-	assign	o_rdata = mem[raddr];
+	// assign	o_rdata = mem[raddr];
+   always @(posedge i_rclk)
+     o_rdata <= mem[raddr];
+   
 
 
 	////////////////////////////////////////////////////////////////////////

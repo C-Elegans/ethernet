@@ -18,7 +18,7 @@ module master(/*AUTOARG*/
 
    reg [7:0] 	    mem [0:255];
    initial $readmemh("frame.hex", mem);
-   parameter MSG_LEN=68;
+   parameter MSG_LEN=64;
    parameter CTR_MAX=1000;
 
    localparam //auto enum state
@@ -54,7 +54,7 @@ module master(/*AUTOARG*/
 	      o_wb_we <= 1'b1;
 	      o_wb_data <= mem[ptr];
 	      ptr <= ptr + 1;
-	      if(ptr == MSG_LEN-1)
+	      if(ptr == MSG_LEN-5)
 		state <= S_WRITE_LEN;
 	   end
 	   S_WRITE_LEN: begin
