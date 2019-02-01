@@ -65,6 +65,8 @@ module gmii_interface(/*AUTOARG*/
 	      gmii_tx_en <= 1;
 	      gmii_tx_data <= 8'h55;
 	      header_len <= header_len - 1;
+	      if(header_len == 3'b1)
+		fifo_rd <= 1'b1;
 	      if(header_len == 3'b0) begin
 		 gmii_tx_data <= 8'h5d;
 		 state <= S_BODY;
@@ -75,6 +77,8 @@ module gmii_interface(/*AUTOARG*/
 	   S_BODY: begin
 	      word_count_reg <= word_count_reg - 1;
 	      gmii_tx_data <= fifo_data;
+	      if(word_count_reg == 1)
+		 fifo_rd <= 1'b0;
 	      if(word_count_reg == 0) begin
 		 state <= S_IDLE;
 		 fifo_rd <= 1'b0;
