@@ -1,4 +1,6 @@
 module pll(input clki, 
+    output clks1,
+    output locked,
     output clko
 );
 wire clkfb;
@@ -15,6 +17,10 @@ EHXPLLL #(
         .OUTDIVIDER_MUXA("DIVA"),
         .CLKOP_ENABLE("ENABLED"),
         .CLKOP_DIV(5),
+        .CLKOS_ENABLE("ENABLED"),
+        .CLKOS_DIV(7),
+        .CLKOS_CPHASE(2),
+        .CLKOS_FPHASE(0),
         .CLKFB_DIV(5),
         .CLKI_DIV(4),
         .FEEDBK_PATH("INT_OP")
@@ -23,6 +29,7 @@ EHXPLLL #(
         .CLKFB(clkfb),
         .CLKINTFB(clkfb),
         .CLKOP(clkop),
+        .CLKOS(clks1),
         .RST(1'b0),
         .STDBY(1'b0),
         .PHASESEL0(1'b0),
@@ -31,6 +38,7 @@ EHXPLLL #(
         .PHASESTEP(1'b0),
         .PLLWAKESYNC(1'b0),
         .ENCLKOP(1'b0),
+        .LOCK(locked)
 	);
 assign clko = clkop;
 endmodule

@@ -19,7 +19,7 @@ module master(/*AUTOARG*/
    reg [7:0] 	    mem [0:255];
    initial $readmemh("frame.hex", mem);
    parameter MSG_LEN=64;
-   parameter CTR_MAX=1000;
+   parameter CTR_MAX=100;
 
    localparam //auto enum state
      S_INIT=0,

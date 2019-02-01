@@ -1,10 +1,10 @@
 module mac(/*AUTOARG*/
    // Outputs
-   rgmii_tx_clk, rgmii_txd, rgmii_tx_ctrl, o_wb_ack, o_wb_stall,
-   o_wb_data,
+   rgmii_tx_clk, rgmii_txd, rgmii_tx_ctrl, sec_q, sec_ctrl, o_wb_ack,
+   o_wb_stall, o_wb_data,
    // Inputs
-   rgmii_rx_clk, rgmii_rxd, rgmii_rx_ctrl, clk, rst, i_wb_cyc,
-   i_wb_stb, i_wb_we, i_wb_addr, i_wb_data
+   rgmii_rx_clk, rgmii_rxd, rgmii_rx_ctrl, tx_clk, core_clk, rst,
+   i_wb_cyc, i_wb_stb, i_wb_we, i_wb_addr, i_wb_data
    );
    output rgmii_tx_clk;
    output [3:0] rgmii_txd;
@@ -14,8 +14,11 @@ module mac(/*AUTOARG*/
    input [3:0]	rgmii_rxd;
    input 	rgmii_rx_ctrl;
 
+   output 	sec_q, sec_ctrl;
 
-   input 	clk;
+
+   input 	tx_clk;
+   input 	core_clk;
    input 	rst;
    input 	i_wb_cyc, i_wb_stb, i_wb_we;
    input [1:0] 	i_wb_addr;
@@ -24,8 +27,8 @@ module mac(/*AUTOARG*/
    output 	o_wb_stall;
    output [7:0]	o_wb_data;
 
-   wire 	gmii_tx_clk = clk;
-   wire 	tx_rst = rst;
+   wire 	gmii_tx_clk = tx_clk;
+   wire 	gmii_tx_rst = rst;
 
 
    /*AUTOWIRE*/
@@ -34,8 +37,6 @@ module mac(/*AUTOARG*/
    wire [7:0]		gmii_rx_data;		// From rgmii of gmii_to_rgmii.v
    wire			gmii_rx_en;		// From rgmii of gmii_to_rgmii.v
    wire			gmii_rx_er;		// From rgmii of gmii_to_rgmii.v
-   wire			sec_ctrl;		// From rgmii of gmii_to_rgmii.v
-   wire			sec_q;			// From rgmii of gmii_to_rgmii.v
    // End of automatics
    wire [7:0]		o_fifo_data;		// From wb of wb_interface.v
    wire			o_fifo_wr;		// From wb of wb_interface.v
@@ -59,7 +60,7 @@ module mac(/*AUTOARG*/
 		   .o_word_count	(o_word_count[10:0]),
 		   .word_count_ready	(word_count_ready),
 		   // Inputs
-		   .clk			(clk),
+		   .clk			(core_clk),
 		   .rst			(rst),
 		   .i_wb_cyc		(i_wb_cyc),
 		   .i_wb_stb		(i_wb_stb),
@@ -71,18 +72,18 @@ module mac(/*AUTOARG*/
 
    afifo #(
 	   .DSIZE(8),
-	   .ASIZE(11)
+	   .ASIZE(9)
 	   )fifo(
 	      // Outputs
 	      .o_wfull			(o_wfull),
 	      .o_rdata			(o_rdata[7:0]),
 	      .o_rempty			(o_rempty),
 	      // Inputs
-	      .i_wclk			(clk),
+	      .i_wclk			(core_clk),
 	      .i_wrst_n			(~rst),
 	      .i_wr			(o_fifo_wr),
 	      .i_wdata			(o_fifo_data[7:0]),
-	      .i_rclk			(gmii_tx_clk),
+	      .i_rclk			(tx_clk),
 	      .i_rrst_n			(~rst),
 	      .i_rd			(fifo_rd));
 
@@ -94,8 +95,8 @@ module mac(/*AUTOARG*/
 		       .gmii_tx_en	(gmii_tx_en),
 		       .gmii_tx_er	(gmii_tx_er),
 		       // Inputs
-		       .clk		(gmii_tx_clk),
-		       .rst		(tx_rst),
+		       .clk		(tx_clk),
+		       .rst		(gmii_tx_rst),
 		       .fifo_data	(o_rdata[7:0]),
 		       .fifo_empty	(o_rempty),
 		       .word_count	(o_word_count[10:0]),
@@ -117,9 +118,9 @@ module mac(/*AUTOARG*/
 		       .rgmii_rx_ctrl	(rgmii_rx_ctrl),
 		       .rgmii_rxd	(rgmii_rxd[3:0]),
 		       .gmii_tx_clk	(gmii_tx_clk),
-		       .gmii_tx_rst     (tx_rst),
 		       .gmii_tx_data	(gmii_tx_data[7:0]),
 		       .gmii_tx_en	(gmii_tx_en),
-		       .gmii_tx_er	(gmii_tx_er));
+		       .gmii_tx_er	(gmii_tx_er),
+		       .gmii_tx_rst	(gmii_tx_rst));
 
 endmodule // mac

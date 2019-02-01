@@ -19,10 +19,14 @@ module reset(/*AUTOARG*/
 	    mac_rst <= 1;
 	end
 	else begin
-	    // counter <= counter + 1;
-	    // if(counter == 20'h10000)
+	   `ifndef VERILATOR
+	    counter <= counter + 1;
+	    if(counter == 20'h10000)
+	       `endif
 	      rgmii_rstn <= 1;
-	    // if(counter == 20'h20000) 
+	   `ifndef VERILATOR
+	    if(counter == 20'h20000) 
+	   `endif
 	      mac_rst <= 0;
 	end
     end

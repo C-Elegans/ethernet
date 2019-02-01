@@ -16,5 +16,5 @@ int main(int argc, char** argv){
   SIG(rstn) = 0;
   tb.tick();
   SIG(rstn) = 1;
-  tb.cycles(200);
+  tb.cycles(400);
 }
