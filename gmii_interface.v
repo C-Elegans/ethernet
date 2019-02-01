@@ -68,7 +68,7 @@ module gmii_interface(/*AUTOARG*/
 	      if(header_len == 3'b1)
 		fifo_rd <= 1'b1;
 	      if(header_len == 3'b0) begin
-		 gmii_tx_data <= 8'h5d;
+		 gmii_tx_data <= 8'hd5;
 		 state <= S_BODY;
 		 fifo_rd <= 1'b1;
 	      end

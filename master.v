@@ -19,7 +19,7 @@ module master(/*AUTOARG*/
    reg [7:0] 	    mem [0:255];
    initial $readmemh("frame.hex", mem);
    parameter MSG_LEN=64;
-   parameter CTR_MAX=100;
+   parameter CTR_MAX=10000;
 
    localparam //auto enum state
      S_INIT=0,
@@ -30,13 +30,22 @@ module master(/*AUTOARG*/
    reg [2:0]  //auto enum state
 	     state;
 
-   reg [10:0] counter;
+   reg [17:0] counter;
    reg [7:0]  ptr;
 
    always @(posedge clk) begin
       if(rst) begin
 	 state <= S_INIT;
 	 /*AUTORESET*/
+	 // Beginning of autoreset for uninitialized flops
+	 counter <= 18'h0;
+	 o_wb_addr <= 2'h0;
+	 o_wb_cyc <= 1'h0;
+	 o_wb_data <= 8'h0;
+	 o_wb_stb <= 1'h0;
+	 o_wb_we <= 1'h0;
+	 ptr <= 8'h0;
+	 // End of automatics
       end
       else if(!i_wb_stall) begin
 	 o_wb_cyc <= 0;
